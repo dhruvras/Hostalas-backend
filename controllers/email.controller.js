@@ -1,4 +1,4 @@
-import Brevo from "@getbrevo/brevo";
+import * as Brevo from "@getbrevo/brevo";
 
 function generate4DigitOTP() {
   return Math.floor(1000 + Math.random() * 9000);
