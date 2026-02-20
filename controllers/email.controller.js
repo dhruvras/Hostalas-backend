@@ -9,10 +9,14 @@ export async function sendMail(req, res) {
     const otp = generate4DigitOTP();
 
     const transporter = nodemailer.createTransport({
-      service: "gmail",
+      host: "smtp.gmail.com",
+      port: 587,
+      secure: false,
       auth: {
-        user: "dhruvrastogi2020@gmail.com",
-        pass: "xnulbrvaelnbacbj", // Gmail App Password
+        // user: "dhruvrastogi2020@gmail.com",
+        // pass: "xnulbrvaelnbacbj", // Gmail App Password
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS,
       },
     });
 
