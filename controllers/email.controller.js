@@ -13,8 +13,6 @@ export async function sendMail(req, res) {
       port: 587,
       secure: false,
       auth: {
-        // user: "dhruvrastogi2020@gmail.com",
-        // pass: "xnulbrvaelnbacbj", // Gmail App Password
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASS,
       },
