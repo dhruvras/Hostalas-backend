@@ -9,38 +9,42 @@ export async function sendMail(req, res) {
     const otp = generate4DigitOTP();
     const email = req.params.email;
 
-    const apiInstance = new Brevo.TransactionalEmailsApi();
-
-    apiInstance.setApiKey(
-      Brevo.TransactionalEmailsApiApiKeys.apiKey,
-      process.env.BREVO_API_KEY
-    );
-
-    const sendSmtpEmail = {
-      sender: { 
-        name: "Hostalas",
-        email: "dhruvrastogi2020@gmail.com", // MUST be verified in Brevo
+    const response = await fetch("https://api.brevo.com/v3/smtp/email", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "api-key": process.env.BREVO_API_KEY,
       },
-      to: [{ email: email }],
-      subject: "OTP for Account Creation",
-      htmlContent: `
-        <h2>Almost done 🎉</h2>
-        <p>Your OTP is:</p>
-        <h1>${otp}</h1>
-        <p>This OTP is valid for 10 minutes.</p>
-      `,
-    };
+      body: JSON.stringify({
+        sender: {
+          name: "Hostalas",
+          email: "dhruvrastogi2020@gmail.com", // must be verified in Brevo
+        },
+        to: [{ email }],
+        subject: "OTP for Account Creation",
+        htmlContent: `
+          <h2>Almost done 🎉</h2>
+          <p>Your OTP is:</p>
+          <h1>${otp}</h1>
+          <p>This OTP is valid for 10 minutes.</p>
+        `,
+      }),
+    });
 
-    await apiInstance.sendTransacEmail(sendSmtpEmail);
+    const data = await response.json();
+
+    if (!response.ok) {
+      console.error("Brevo API error:", data);
+      return res.status(500).json({ message: "Email failed" });
+    }
 
     res.status(200).json({
       message: "Email sent successfully",
-      // ❌ REMOVE IN PRODUCTION
-      otp: otp,
+      otp, // remove in production
     });
 
   } catch (error) {
-    console.error("Brevo error:", error.response?.body || error);
+    console.error("Server error:", error);
     res.status(500).json({ message: "Email failed" });
   }
 }
