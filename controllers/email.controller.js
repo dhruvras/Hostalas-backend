@@ -1,4 +1,4 @@
-import * as Brevo from "@getbrevo/brevo";
+import nodemailer from "nodemailer";
 
 function generate4DigitOTP() {
   return Math.floor(1000 + Math.random() * 9000);
@@ -7,29 +7,23 @@ function generate4DigitOTP() {
 export async function sendMail(req, res) {
   try {
     const otp = generate4DigitOTP();
-    const email = req.params.email;
 
-    const response = await fetch("https://api.brevo.com/v3/smtp/email", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "api-key": process.env.BREVO_API_KEY,
+    const transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: "dhruvrastogi2020@gmail.com",
+        pass: "xnulbrvaelnbacbj", // Gmail App Password
       },
-      body: JSON.stringify({
-        sender: {
-          name: "Hostalas",
-          email: "dhruvrastogi2020@gmail.com", // must be verified in Brevo
-        },
-        to: [{ email }],
-        subject: "OTP for Account Creation",
-        htmlContent: `
-          <h2>Almost done 🎉</h2>
-          <p>Your OTP is:</p>
-          <h1>${otp}</h1>
-          <p>This OTP is valid for 10 minutes.</p>
-        `,
-      }),
     });
+
+    const mailOptions = {
+      from: "dhruvrastogi2020@gmail.com",
+      to: req.params.email,
+      subject: "OTP for Account Creation",
+      text: `Your OTP is: ${otp}. It is valid for 10 minutes.`,
+      html: `<h2>Almost done 🎉</h2>
+             <p>Your OTP is: <b>${otp}</b></p>`,
+    };
 
     const data = await response.json();
 
