@@ -1,5 +1,6 @@
 import nodemailer from "nodemailer";
-
+import dotenv from "dotenv";
+dotenv.config();
 function generate4DigitOTP() {
   return Math.floor(1000 + Math.random() * 9000);
 }
@@ -11,13 +12,13 @@ export async function sendMail(req, res) {
     const transporter = nodemailer.createTransport({
       service: "gmail",
       auth: {
-        user: "dhruvrastogi2020@gmail.com",
-        pass: "xnulbrvaelnbacbj", // Gmail App Password
+        user: process.env.EMAIL_ID, // Gmail ID
+        pass: process.env.PASSKEY, // Gmail App Password
       },
     });
 
     const mailOptions = {
-      from: "dhruvrastogi2020@gmail.com",
+      from: process.env.EMAIL_ID,
       to: req.params.email,
       subject: "OTP for Account Creation",
       text: `Your OTP is: ${otp}. It is valid for 10 minutes.`,
@@ -25,20 +26,17 @@ export async function sendMail(req, res) {
              <p>Your OTP is: <b>${otp}</b></p>`,
     };
 
-    const data = await response.json();
+    const info = await transporter.sendMail(mailOptions);
 
-    if (!response.ok) {
-      console.error("Brevo API error:", data);
-      return res.status(500).json({ message: "Email failed" });
-    }
+    console.log("Email sent:", info.response);
 
     res.status(200).json({
       message: "Email sent successfully",
-      otp, // remove in production
+      otp: otp, // remove this in production
     });
 
   } catch (error) {
-    console.error("Server error:", error);
+    console.log("Error sending email:", error);
     res.status(500).json({ message: "Email failed" });
   }
-}
+} 
